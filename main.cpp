@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 /**exercise 13.1
  * 拷贝构造函数的第一个参数是自身类类型的引用，之后的参数都要有默认值。
@@ -42,6 +43,7 @@ public:
     ps(new std::string(s)), i(0) {}
     HasPtr(HasPtr& hasPtr) : ps(new std::string(*(hasPtr.ps))), i(hasPtr.i) {}
     HasPtr& operator=(const HasPtr(&));
+    ~HasPtr(); //exercise 13.11
 
 private:
     std::string* ps;
@@ -71,7 +73,114 @@ HasPtr& HasPtr::operator=(const HasPtr& hasPtr) {
     return *this;
 }
 
+/**exercise 13.9
+ * 析构函数用来释放对象所使用的资源，并销毁对象的非static成员。
+ *
+ * 一下情况会自动调用析构函数：
+ * 1. 变量离开作用域。
+ * 2. 销毁对象的成员的时候。
+ * 3. 容器被销毁的时候，里面的元素被销毁。
+ * 4. 销毁动态内存的对象。（delete指针，指向的对象被销毁，同样是调用这个对象的析构函数）
+ * 5. 对于临时变量，当创建它的表达式结束的时候。
+ *
+ * 当一个类没有定义自己的析构函数的时候，编译器就为这个类生成一个合成析构函数。*/
+
+/**exercise 13.10
+ * 当strBlob对象被销毁的时候先执行析构函数的函数体，然后销毁它对象中的成员。data被销毁时候，需要调用shared_ptr的析构函数，如果引用
+ * 次数变为0则释放动态内存空间。
+ * 当StrblobPtr被销毁的时候先执行析构函数的函数体，然后依次销毁成员weakptr和curr.weakptr需要weakptr的类的析构函数，curr是内置类
+ * 型，所以自动销毁。*/
+
+/**exercise 13.11
+ * look at exercise 13.5*/
+HasPtr::~HasPtr() {delete ps;}
+
+/**exercise 13.12
+ * 三次，当item1和item2离开作用域的时候需要被销毁。调用两此Sales_data类的析构函数，用于销毁这两个对象。accum是被拷贝构造函数复制
+ * 外面的对象，复制到函数里面来的。所以当函数结束的时候，accum也需要调用Sales_data的析构函数来销毁。*/
+
+/**exercise 13.13*/
+struct X{
+    X(){std::cout << "X()";}
+    X(const X& x) {std::cout << "X(const X&)";}
+    ~X() {std::cout << "~X()";}
+    X& operator=(const X& x1) {std::cout << "operator=";
+        return *this;}
+};
+
+void f(X x) { }
+void f1(X& x) { }
+void exercise13_13_1(){
+    //作为引用和非引用进行参数传递
+    X x1;
+    f(x1);
+    std::cout << "now is reference: ";
+    f1(x1);
+}
+
+void exercise13_13_2(){
+    //动态分配
+    X* x1 = new X;
+    delete(x1);
+}
+
+void exercise13_13_3(){
+    //容器中的元素
+    X x;
+    std::vector<X> x1(2);
+    x1.push_back(x);
+}
+
+void exercise13_13_4(){
+    //局部变量
+    X x;
+}
+
+void exercise13_13_5(){
+    //用一个对象初始化另外一个对象
+    X x1;
+    X x2(x1);
+}
+
+/**exercise 13.14
+ * 输出相同的序列号*/
+
+/**exercise 13.15
+ * 改变了。使用拷贝构造函数，拷贝初始化b，c。但是输出的序列号并不是a.b,c本来的序列号。一位f()传递对象而不是引用，所以每次调用都需要拷贝构造函数，都会生成新的序列号，
+ * 然后输出。*/
+
+/**exercise 13.16
+ * 会改变输出结果，因为调用f()的时候不再需要使用拷贝构造函数，因为f()的参数是引用。可以输出a，b，c本来的序列号。*/
+
+/**exercise 13.17*/
+struct numbered{
+
+    inline static int seq;
+
+    numbered() {mysn = seq++;}
+    numbered(const numbered& a) {mysn = seq++;}
+    int mysn;
+};
+
+void f(numbered a){std::cout << a.mysn << std::endl;}
+void f1(const numbered& a){std::cout << a.mysn << std::endl;}
+
+void exercise13_15(){
+    numbered a, b = a, c = b;
+    f(a);
+    f(b);
+    f(c);
+}
+
+void exercise13_16(){
+    numbered a, b = a, c = b;
+    f1(a);
+    f1(b);
+    f1(c);
+}
+
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    exercise13_15()
+    ;
     return 0;
 }
