@@ -179,6 +179,36 @@ void exercise13_16(){
     f1(c);
 }
 
+/**exercise 13.18*/
+class Employee{
+private:
+    static int seq;
+public:
+    std::string name;
+public:
+    Employee() {seq++;}
+    Employee(const std::string& s) {name = s; seq++;}
+    Employee(const Employee& e) {name = e.name; seq++;}
+    Employee& operator=(Employee& e) = default;
+};
+
+/**exercise 13.19
+ * see exercise 13.18;
+ * 需要定义自己的拷贝构造函数，因为拷贝初始化时候序列号需要变化 Emloyee a(b)。a，b的序列号不是一样的。
+ * 但是我们希望赋值的时候 =左侧和右侧的对象有相同的序列号。c = b，b，c的序列号是一样的。*/
+
+/**exercise 13.20
+ * 因为没有定义自己的拷贝构造函数和拷贝赋值运算符，所以用编译器合成的。
+ * 拷贝：把file成员拷贝给新的对象，拷贝的时候会调用shared_ptr的拷贝构造函数。两个shared_ptr指向相同的vector<string>。并且这个shared_ptr的引用计数+1。
+ * 把wm同样拷贝给新的对象，拷贝的时候会调用map的拷贝构造函数，拷贝map中的每个元素。string将调用string的拷贝构造函数，shared_ptr调用自己构造函数。
+ * 对于QueryResult, sought,file都调用自己的类的拷贝构造函数，lines是int的类型的，直接复制内存。
+ * 赋值：
+ * 销毁：*/
+
+/**exercise 13.21
+ * 不需要，因为这两个类的成员类型都是标准库中的（vector，shared_ptr，string，map，set）。如果两个对象需要共享，智能指针可以很好的
+ * 实现，并不会出现new时候出现的问题。*/
+
 int main() {
     exercise13_15()
     ;
