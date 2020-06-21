@@ -343,6 +343,25 @@ void exercise13_27() {
     std::cout << *h1.use << std::endl;
 }
 
+/**exercise 13.28
+ * this is binary tree.*/
+class BinStrTree;
+class TreeNode{
+    friend BinStrTree;
+private:
+    std::string value;
+    int count;
+    TreeNode *left;
+    TreeNode *right;
+};
+
+class BinStrTree{
+public:
+
+private:
+    TreeNode* root;
+};
+
 int main() {
     exercise13_27()
     ;
