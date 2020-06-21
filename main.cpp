@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 /**exercise 13.1
  * 拷贝构造函数的第一个参数是自身类类型的引用，之后的参数都要有默认值。
@@ -39,14 +40,18 @@ Point foo_bar(Point arg)//当需要传参的时候需要复制构造函数
 
 /**exercise 13.5*/
 class HasPtr{
+    friend void swap(HasPtr&, HasPtr&);
 public:
+    HasPtr() = default;
     HasPtr(const std::string& s = std::string()) :
     ps(new std::string(s)), i(0) {}
-    HasPtr(HasPtr& hasPtr) : ps(new std::string(*(hasPtr.ps))), i(hasPtr.i) {}
-    HasPtr& operator=(const HasPtr(&));
-    ~HasPtr(); //exercise 13.11
+    HasPtr(const HasPtr& h) : ps(new std::string(*h.ps)), i(h.i) {}
+    HasPtr& operator=(const HasPtr&);
 
-private:
+    ~HasPtr(); //exercise 13.11
+    bool operator<(const HasPtr&);
+
+public:
     std::string* ps;
     int i;
 };
@@ -69,7 +74,7 @@ private:
 HasPtr& HasPtr::operator=(const HasPtr& hasPtr) {
     if(!ps)
         delete ps;
-    ps = new std::string(*(hasPtr.ps));
+    ps = new std::string(*hasPtr.ps);
     i = hasPtr.i;
     return *this;
 }
@@ -362,8 +367,55 @@ private:
     TreeNode* root;
 };
 
+/**exercise 13.29
+ * 不会递归循环，因为swap(HasPtr&, HasPtr&)中的参数是两个HasPtr对象的引用，而里面的swap函数是调用标准库中的swap函数因为参数是内
+ * 置类型。(参数是两个指针ps或者两个int)*/
+
+/**exercises 13.30*/
+void swap(HasPtr& h1, HasPtr& h2) {
+    std::swap(h1.ps, h2.ps);
+    std::swap(h1.i, h2.i);
+    std::cout << "swap!" << std::endl;
+}
+
+void exercise13_30() {
+    HasPtr h1("a");
+    HasPtr h2("b");
+    swap(h1, h2);
+    std::cout << *h1.ps << *h2.ps << std::endl;
+}
+
+/**exercises 13.31*/
+bool HasPtr::operator<(const HasPtr& h1){
+    return *ps < *(h1.ps);
+}
+
+void exercise13_31(){
+    std::vector<HasPtr> a;
+/*    HasPtr a1("a1");
+    HasPtr a2("a2");
+    HasPtr a3("a3");
+    a.push_back(a1);
+    a.push_back(a2);
+    a.push_back(a3);*/
+for (int i = 0; i < 20; i++)
+    a.push_back(std::to_string(i));
+
+for (auto i : a)
+    std::cout << *i.ps << std::endl;
+
+std::sort(a.begin(), a.end());
+
+for (auto i : a)
+    std::cout << *i.ps << std::endl;
+}
+
+
+/**exercise 13.32
+ * 使用方式和值的版本是一样的，但是不会比值有更多的收益，都是一样的。*/
+
 int main() {
-    exercise13_27()
+    exercise13_31()
     ;
     return 0;
 }
