@@ -275,8 +275,76 @@ void exercise13_26(){
         cout << i << endl;
 }
 
+/**exercise 13.27*/
+class HasP{
+public:
+    HasP() = default;
+    HasP(const std::string&);
+    HasP(const HasP&);
+    HasP& operator=(const HasP&);
+    ~HasP();
+
+public:
+    std::string* ps;
+    int i;
+    int* use;
+};
+
+HasP::HasP(const std::string& s) :
+ps(new std::string(s)), i(0), use(new int())
+{
+    *use = 1;
+}
+
+HasP::HasP(const HasP& p) {
+    ps = p.ps;
+    i = p.i;
+    use = p.use;
+    ++*use;
+    std::cout << "HasP(const HasP& p)" << std::endl;
+}
+
+HasP::~HasP() {
+    if(--*use == 0)
+    {
+        delete ps;
+        delete use;
+        ps = nullptr;
+        use = nullptr;
+    }
+    std::cout << "~HasP()" << std::endl;
+}
+
+HasP &HasP::operator=(const HasP& hasp) {
+    --*use;
+    if(*use == 0)
+    {
+        delete ps;
+        ps = nullptr;
+        delete use;
+        use = nullptr;
+    }
+    ++(*hasp.use);
+    ps = hasp.ps;
+    use = hasp.use;
+    i = hasp.i;
+
+    return *this;
+}
+
+void exercise13_27() {
+    HasP h1("aaa");
+    std::cout << *h1.use << std::endl;
+    HasP h2(h1);
+    std::cout << *h1.use << std::endl;
+    HasP h3("bbb");
+    std::cout << *h1.use << std::endl;
+    h3 = h2;
+    std::cout << *h1.use << std::endl;
+}
+
 int main() {
-    exercise13_26()
+    exercise13_27()
     ;
     return 0;
 }
