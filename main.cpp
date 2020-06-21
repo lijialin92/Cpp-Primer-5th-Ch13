@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <memory>
 
 /**exercise 13.1
  * 拷贝构造函数的第一个参数是自身类类型的引用，之后的参数都要有默认值。
@@ -209,8 +210,73 @@ public:
  * 不需要，因为这两个类的成员类型都是标准库中的（vector，shared_ptr，string，map，set）。如果两个对象需要共享，智能指针可以很好的
  * 实现，并不会出现new时候出现的问题。*/
 
+/**exercise 13.22
+ * see later exercise*/
+
+/**exercise 13.23
+ * no difference*/
+
+/**exercise 13.24
+ * 默认构造函数销毁一个对象的时候，只会销毁ps指针，而不会销毁ps指向的内存。造成内存泄漏。
+ *
+ * 如果未定义拷贝构造函数，两个对象会有相同的ps指针，指向相同的内存。当析构函数销毁其中一个对象的时候，会释放这个ps指向的内存。另外
+ * 和这个ps指向相同对象的ps就成了空悬指针。*/
+
+/**exercise 13.25
+ * 拷贝构造函数：生成一个新的vector<string>,然后用一个StrBlob对象的ptr指向它。
+ * 拷贝复制运算符：让对象可以自己给自己复制，如果出翔异常，不会产生问题。
+ * 析构函数不需要的，因为shared_ptr如果引用为0，会自动销毁所指向的内存空间。不用手动delete销毁。*/
+
+/**exercise 13.26*/
+class StrBlob{
+public:
+    StrBlob() = default;
+    StrBlob(std::vector<std::string>*);
+    StrBlob(const StrBlob&);
+    StrBlob& operator=(const StrBlob&);
+    void push_back(const std::string& s) {data->push_back(s);}
+
+public:
+    std::shared_ptr<std::vector<std::string>> data;
+};
+
+StrBlob::StrBlob(std::vector<std::string>* p){
+    data = std::make_shared<std::vector<std::string>>(*p);
+    delete p;
+    std::cout << "use of normal constructor." << std::endl;
+}
+
+inline StrBlob::StrBlob(const StrBlob& sb){
+    data = std::make_shared<std::vector<std::string>>(*sb.data);
+    std::cout << "use of normal copy constructor." << std::endl;
+}
+
+inline StrBlob& StrBlob::operator=(const StrBlob& sb) {
+    data = std::make_shared<std::vector<std::string>>(*sb.data);
+    std::cout << "use of operator= constructor." << std::endl;
+    return *this;
+}
+
+void exercise13_26(){
+    using namespace std;
+    auto vecPtr = new vector<string>();
+    vecPtr->push_back("aaa");
+    vecPtr->push_back("bbb");
+    vecPtr->push_back("ccc");
+    StrBlob b1(vecPtr);
+    for(const auto& i : *b1.data)
+        cout << i << endl;
+    StrBlob b2(b1);
+    for(const auto& i : *b2.data)
+        cout << i << endl;
+    StrBlob b3;
+    b3 = b2;
+    for(const auto& i : *b3.data)
+        cout << i << endl;
+}
+
 int main() {
-    exercise13_15()
+    exercise13_26()
     ;
     return 0;
 }
