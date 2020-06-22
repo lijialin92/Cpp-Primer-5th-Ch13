@@ -522,9 +522,10 @@ void Message::remFolder(Folder* folder) {
 
 /**exercise 13.39
  * see StrVec.h file.*/
+#include "StrVec.h"
 
 int main() {
-    exercise13_31()
+    StrVec s;
     ;
     return 0;
 }
