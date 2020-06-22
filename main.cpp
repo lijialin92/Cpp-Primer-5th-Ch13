@@ -520,6 +520,9 @@ void Message::remFolder(Folder* folder) {
 /**exercise 13.38
  * 使用拷贝复制运算符效率更高，因为使用的是引用。不用拷贝构造函数，也就不用拷贝复制新的对象进swap()。*/
 
+/**exercise 13.39
+ * see StrVec.h file.*/
+
 int main() {
     exercise13_31()
     ;
