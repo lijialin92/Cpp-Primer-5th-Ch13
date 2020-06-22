@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <set>
 
 /**exercise 13.1
  * 拷贝构造函数的第一个参数是自身类类型的引用，之后的参数都要有默认值。
@@ -413,6 +414,111 @@ for (auto i : a)
 
 /**exercise 13.32
  * 使用方式和值的版本是一样的，但是不会比值有更多的收益，都是一样的。*/
+
+/**exercise 13.33
+ * 如果参数是Folder而不是Folder&的话，调用save()的时候，就要调用Folder的拷贝构造函数，复制一个Folder进来。当用这个复制的Folder,
+ * call addmsg的时候，只是在复制的Folder中添加message，等到函数调用完成复制的Folder就被销毁了，并没有改变原来的Folder对象。
+ * 这种情况也可以解决，可以定义在Folder类中定义拷贝构造函数。
+ * 当调用一下成员函数的时候，会改变Folder对象，所以不能是const 引用。例如addmsg()的时候，会向Folder对象中message set中添加元素。*/
+
+/**exercise 13.34*/
+class Folder;
+class Message{
+    friend class Folder;
+public:
+    Message() = default;
+    Message(const std::string& s): content(s) {};
+    Message(const Message&);
+    Message& operator=(Message&);
+    void save(Folder&);
+    void remove(Folder&);
+    ~Message();
+    void addFolder(Folder*);
+    void remFolder(Folder*);
+private:
+    std::string content;
+    std::set<Folder*> folders;
+    void addToFolder(const Message&);
+    void removeFromFolder(const Message&);
+};
+
+Message::Message(const Message& m) : content(m.content), folders(m.folders)
+{
+    addToFolder(*this);
+}
+
+Message& Message::operator=(Message& msg){
+    removeFromFolder(*this);
+    content = msg.content;
+    folders = msg.folders;
+    addToFolder(*this);
+    return *this;
+}
+
+Message::~Message(){
+    removeFromFolder(*this);
+}
+
+class Folder{
+    friend class Message;
+public:
+    void addmsg(Message*);
+    void remmsg(Message*);
+
+private:
+    std::set<Message*> messages;
+};
+
+void Folder::addmsg(Message* msgPtr) {
+    messages.insert(msgPtr);
+}
+
+void Folder::remmsg(Message* msgPtr){
+    messages.erase(msgPtr);
+}
+
+void Message::addToFolder(const Message& m){
+    for(auto i : m.folders)
+        i->addmsg(this);
+}
+
+void Message::removeFromFolder(const Message& m) {
+    for(auto i : m.folders)
+        i->remmsg(this);
+}
+
+void Message::save(Folder& folder){
+    folders.insert(&folder);
+    folder.addmsg(this);
+}
+
+void Message::remove(Folder& folder){
+    folder.remmsg(this);
+    folders.erase(&folder);
+}
+
+void Message::addFolder(Folder* folderPtr){
+    folders.insert(folderPtr);
+    folderPtr->addmsg(this);
+}
+
+void Message::remFolder(Folder* folder) {
+    folder->remmsg(this);
+    folders.erase(folder);
+}
+
+/**exercise 13.35
+ * 如果使用默认合成的拷贝复制函数，可以正确的复制Message对象，但是没有办法把拷贝构造生成的新的Message对象添加在Folder对象的
+ * messages的成员中。*/
+
+/**exercise 13.36
+ * see exercise 13.34*/
+
+/**exercise 13.37
+ * see exercise 13.34*/
+
+/**exercise 13.38
+ * 使用拷贝复制运算符效率更高，因为使用的是引用。不用拷贝构造函数，也就不用拷贝复制新的对象进swap()。*/
 
 int main() {
     exercise13_31()
