@@ -3,6 +3,7 @@
 #include <memory>
 #include <algorithm>
 #include <set>
+#include "StrVec.h"
 
 /**exercise 13.1
  * 拷贝构造函数的第一个参数是自身类类型的引用，之后的参数都要有默认值。
@@ -521,8 +522,22 @@ void Message::remFolder(Folder* folder) {
  * 使用拷贝复制运算符效率更高，因为使用的是引用。不用拷贝构造函数，也就不用拷贝复制新的对象进swap()。*/
 
 /**exercise 13.39
+ * exercise 13.40
  * see StrVec.h file.*/
-#include "StrVec.h"
+
+/**exercise 13.41
+ * 因为firstFree 指向的是最后一个元素的下一位子，所以这个位子是空位。添加完新的之后，自加1，指向下一个空位子。
+ * 不能是先自加，这样两个元素之间就有空位了。*/
+
+/**exercise 13.42
+ * ...........*/
+
+/**exercise 13.43
+ * */
+
+/**exercise 13.44
+ * ...........*/
+
 
 int main() {
     StrVec s;
